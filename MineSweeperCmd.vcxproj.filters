@@ -32,4 +32,9 @@
       <Filter>資源檔</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <Filter>資源檔</Filter>
+    </None>
+  </ItemGroup>
 </Project>
