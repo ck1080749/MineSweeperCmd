@@ -299,6 +299,7 @@ int main()
                 end = clock()/1000;
                 EndGame(end - start);
                 cout << "Bye!\n";
+                system("pause");
                 return 0;
             }
         }
