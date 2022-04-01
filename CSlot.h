@@ -14,6 +14,7 @@ private:
 	int slotY;
 	void FlagCountChecker();
 	void OnPassiveClick();//¦Û°Ê«õ
+	bool isUncertain;
 	//char displayStyle;
 public:
 	CSlot** slotsNearBy;
@@ -31,6 +32,7 @@ public:
 	bool IsDigged();
 	bool IsFlagPlanted();
 	bool IsBombHere();
+	bool IsUncertain();
 	bool SamePos(CSlot* comparewith);
 };
 

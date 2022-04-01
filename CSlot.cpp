@@ -17,6 +17,7 @@ CSlot::CSlot()
 	isDigged = false;
 	bombsNearBy = 0;
 	isBombHere = false;
+	isUncertain = false;
 	flagsNearBy = 0;
 	slotX = 0;
 	slotY = 0;
@@ -28,15 +29,23 @@ CSlot::~CSlot()
 	delete[] slotsNearBy;
 }
 
-void CSlot::OnRightClick(int& flagsRemain)
+void CSlot::OnRightClick(int& flagsRemain)//插旗或拔旗
 {
 	if (isFlagPlanted) {
 		flagsRemain++; 
 		isFlagPlanted = false;
+		isUncertain = true;
 	}
-	else {
+	else if (!isUncertain){
+		if (flagsRemain == 0) {
+			printf("No more flag left!\t");
+			return;
+		}
 		flagsRemain--;
 		isFlagPlanted = true;
+	}
+	else {
+		isUncertain = false;
 	}
 }
 
@@ -48,15 +57,18 @@ bool CSlot::OnLeftClick()//回傳true == 安全挖掘||非法挖掘
 		if (isBombHere)return false;
 		if (bombsNearBy == 0) {
 			for (int i = 0; i < 8; i++) {
-				if (slotsNearBy[i] != NULL) slotsNearBy[i]->OnPassiveClick();
+				if (slotsNearBy[i] != NULL) 
+					slotsNearBy[i]->OnPassiveClick();
 			}
 		}
 		else {
-			for (int i = 0; i < 8; i++) {
+			/*
+			for (int i = 0; i < 8; i++) {//????????
 				if (slotsNearBy[i] != NULL) {
-					if (slotsNearBy[i]->bombsNearBy == 0 && slotsNearBy[i]->isDigged) slotsNearBy[i]->OnPassiveClick();
+					if (slotsNearBy[i]->bombsNearBy == 0) slotsNearBy[i]->OnPassiveClick();
 				}
 			}
+			*/
 		}
 		return true;
 	}
@@ -72,8 +84,10 @@ void CSlot::OnPassiveClick()
 	if (isFlagPlanted)return;
 	if (isBombHere)return;
 	if (isDigged)return;
+	isDigged = true;//一定不可能是炸彈，直接挖開沒差
 	if (bombsNearBy != 0) {
-		for (int i = 0; i < 8; i++) {
+		/*
+		for (int i = 0; i < 8; i++) {//??????
 			if (slotsNearBy[i] != NULL) {
 				if (slotsNearBy[i]->bombsNearBy == 0) {
 					isDigged = true;
@@ -81,9 +95,10 @@ void CSlot::OnPassiveClick()
 				}
 			}
 		}
+		*/
+		return;
 	}
 	else {
-		isDigged = true;
 		for (int i = 0; i < 8; i++) {
 			if (slotsNearBy[i] != NULL) {
 				slotsNearBy[i]->OnPassiveClick();
@@ -92,21 +107,43 @@ void CSlot::OnPassiveClick()
 	}
 }
 
+/*
 bool CSlot::OnBothClick()
 {
+	//因為onBothClick回傳值為「是否操作成功」而非「是否爆炸」，需要改正的點有點多
 	FlagCountChecker();
 	if (flagsNearBy == bombsNearBy) {
 		for (int i = 0; i < 8; i++) {
 			if (slotsNearBy[i] != NULL) {
 				if (slotsNearBy[i]->isDigged)continue;
 				else if (slotsNearBy[i]->isFlagPlanted)continue;
-				else if (slotsNearBy[i]->isBombHere)continue;
+				else if (slotsNearBy[i]->isBombHere)continue;//Here may remove
 				else slotsNearBy[i]->OnLeftClick();
 			}
 		}
 		return true;
 	}
 	return false;
+}*/
+
+bool CSlot::OnBothClick() {
+	FlagCountChecker();
+	if (flagsNearBy == bombsNearBy) {
+		for (int i = 0; i < 8; i++) {
+			if (slotsNearBy[i] != NULL) {
+				if (slotsNearBy[i]->isDigged)continue;
+				else if (slotsNearBy[i]->isFlagPlanted)continue;
+				//else if (slotsNearBy[i]->isBombHere)continue;//Here may remove
+				if (!slotsNearBy[i]->OnLeftClick()) {
+					return false;
+				}
+			}
+		}
+	}
+	else {
+		printf("You haven't flag enough yet!\n");
+	}
+	return true;
 }
 
 void CSlot::SetBombHere()
@@ -153,6 +190,13 @@ bool CSlot::IsBombHere()
 {
 	return isBombHere;
 }
+
+bool CSlot::IsUncertain()
+{
+	return isUncertain;
+}
+
+
 
 bool CSlot::SamePos(CSlot* comparewith)
 {

@@ -14,11 +14,11 @@ struct MennSize
 };
 typedef struct MennSize _size;
 
-const string VER = "0.6alpha";
+const string VER = "v1.1-alpha";
 const _size EASY = { 8, 8, 10};//minium
 const _size NORMAL = { 16, 16, 40};
 const _size HARD = { 16, 30, 99};
-const _size MAX = { 24, 30, 668};
+const _size MAX = { 24, 30, 668};//自訂版面的上限大小
 CSlot** menn;
 _size s;
 
@@ -95,11 +95,12 @@ void PrintMenn() {//U = Undigged, F = Flagged, number = digged, B = failed bomb 
         for (int j = 0; j < s.width; j++) {
             if (menn[i][j].IsFlagPlanted()) {
                 cout << "F";
-                continue;
-            }
-            if (menn[i][j].IsDigged()) {
+            }else if (menn[i][j].IsDigged()) {
                 if (menn[i][j].BombsNearBy() == 0)cout << " ";
                 else cout << menn[i][j].BombsNearBy();
+            }
+            else if (menn[i][j].IsUncertain()) {
+                cout << "?";
             }
             else {
                 cout << "U";
@@ -123,7 +124,7 @@ void PrintCheatMenn() {//U = Undigged, F = Flagged, number = digged, B = failed 
 void InGameMenu(char& opt) {
     cout << "Operations: \n"
         << "1. Dig a slot\n"
-        << "2. Flag a slot\n"
+        << "2. Mark/Unmark a slot\n"
         << "3. Dig nearby slots\n"
         << "4. Quit without Finishing the game\n"
         << "> ";
@@ -259,7 +260,7 @@ int main()
     Init();
 
     //in
-    int operations = 0;
+    int operations = 0; // 動作次數
     int x = 0, y = 0;
     int flagCounter = s.bombCount;
     start = clock()/1000;
@@ -269,7 +270,7 @@ int main()
         system("cls");
         PrintMenn();
         cout << "-------------------------------------------------------\n";
-        //PrintCheatMenn();
+        PrintCheatMenn();
         //cout << "-------------------------------------------------------\n";
         if (operations) {
             cout << "Previous operation: ";
@@ -279,7 +280,7 @@ int main()
                 cout << "Digged slot ( " << x << ", " << y << ")\n";
                 break;
             case '2':
-                cout << "Flagged slot ( " << x << ", " << y << ")\n";
+                cout << "Marked/Unmarked slot ( " << x << ", " << y << ")\n";
                 break;
             case '3':
                 cout << "Digged slots around ( " << x << ", " << y << ")\n";
@@ -372,9 +373,12 @@ int main()
                 continue;
             }
             else if (menn[y][x].IsDigged()) {//menn[row count][col count] == menn[直][橫]
-                if (!menn[y][x].OnBothClick()) {
-                    cout << "You haven't flag enough yet!\n";
-                    continue;
+                if (!menn[y][x].OnBothClick()) {//fail
+                    //cout << "You haven't flag enough yet!\n";
+                    //continue;
+                    win = false;
+                    PrintFailedMenn();
+                    break;
                 }
             }
             else {
