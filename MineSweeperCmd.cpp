@@ -14,7 +14,7 @@ struct MennSize
 };
 typedef struct MennSize _size;
 
-const string VER = "v1.1-alpha";
+const string VER = "1.2-alpha";
 const _size EASY = { 8, 8, 10};//minium
 const _size NORMAL = { 16, 16, 40};
 const _size HARD = { 16, 30, 99};
@@ -270,7 +270,7 @@ int main()
         system("cls");
         PrintMenn();
         cout << "-------------------------------------------------------\n";
-        PrintCheatMenn();
+        //PrintCheatMenn();
         //cout << "-------------------------------------------------------\n";
         if (operations) {
             cout << "Previous operation: ";
